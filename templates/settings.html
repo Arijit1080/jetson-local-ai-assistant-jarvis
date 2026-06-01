@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Settings · Sparklers Local AI Assistant</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="theme-jarvis">
+
+<div class="bg-grid"></div>
+<div class="bg-glow"></div>
+
+<header class="app">
+  <div class="app-inner">
+    <div class="brand">
+      <span class="brand-mark">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none"
+             stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <circle cx="12" cy="12" r="9"/>
+          <circle cx="12" cy="12" r="5" stroke-dasharray="2 3"/>
+          <circle cx="12" cy="12" r="1.6" fill="currentColor"/>
+        </svg>
+      </span>
+      <span class="brand-name">SPARKLERS <span class="brand-sub">· Local AI Assistant</span></span>
+    </div>
+    <nav class="tabs">
+      <a href="/">Live</a>
+      <a href="/settings" class="on">Settings</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="card glass">
+    <h2>SYSTEM CONTEXT</h2>
+    <p class="dim small">
+      Anything you write here is sent to the LLM as the system prompt for every conversation.
+      Use it to give Jarvis a persona, knowledge of who you are, or rules to follow.
+    </p>
+    <form id="settings-form" method="post">
+      <div class="field">
+        <label for="system_prompt">System prompt</label>
+        <textarea id="system_prompt" name="system_prompt" rows="8"
+          placeholder="e.g. You are Jarvis, my personal AI on a Jetson Orin Nano. I am Ari, a maker and YouTuber from India.">{{ settings.system_prompt }}</textarea>
+        <div class="help">Saved on submit · applied to the next turn (history is reset).</div>
+      </div>
+
+      <div class="grid-2">
+        <div class="field">
+          <label for="wake_threshold">Wake-word threshold (cosine)</label>
+          <input id="wake_threshold" name="wake_threshold" type="number" step="0.01"
+                 min="0.05" max="0.95" value="{{ settings.wake_threshold }}">
+          <div class="help">Lower = fires easier (more false positives). Default {{ defaults.wake_threshold }}.</div>
+        </div>
+        <div class="field">
+          <label for="wake_gain">Wake-word input gain</label>
+          <input id="wake_gain" name="wake_gain" type="number" step="0.5"
+                 min="1" max="16" value="{{ settings.wake_gain }}">
+          <div class="help">Compensates for the codec's low mic level. Default {{ defaults.wake_gain }}.</div>
+        </div>
+        <div class="field">
+          <label for="silence_ms">VAD silence cutoff (ms)</label>
+          <input id="silence_ms" name="silence_ms" type="number" step="100"
+                 min="300" max="5000" value="{{ settings.silence_ms }}">
+          <div class="help">How long to wait silently before deciding the user is done speaking.</div>
+        </div>
+        <div class="field">
+          <label for="vad_aggressiveness">VAD aggressiveness</label>
+          <input id="vad_aggressiveness" name="vad_aggressiveness" type="number" step="1"
+                 min="0" max="3" value="{{ settings.vad_aggressiveness }}">
+          <div class="help">0 = lenient (catches more), 3 = strict (less false speech).</div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="submit">SAVE</button>
+        <a class="ghost btn" href="/">Cancel</a>
+      </div>
+      <div id="save-status" class="dim small"></div>
+    </form>
+  </section>
+</main>
+
+<script>
+document.getElementById('settings-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const f = new FormData(e.target);
+  const r = await fetch('/settings', { method: 'POST', body: f });
+  const j = await r.json();
+  const st = document.getElementById('save-status');
+  if (j.ok) {
+    st.textContent = '✓ saved · applied to next turn';
+    st.style.color = 'var(--good)';
+  } else {
+    st.textContent = '⚠ save failed';
+    st.style.color = 'var(--danger)';
+  }
+});
+</script>
+
+</body>
+</html>

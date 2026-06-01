@@ -1,0 +1,38 @@
+# Anything large or environment-specific stays out of the build context
+venv/
+training_venv/
+.venv/
+
+# Models — downloaded at runtime by entrypoint or first-use
+models/
+training/
+~/.cache/
+~/.insightface/
+
+# Build artifacts / caches
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# Runtime state (regenerated)
+settings.json
+attendance.db
+snapshots/
+embeddings.npz
+*.log
+*.csv
+*.wav
+*.mp3
+
+# Git / editor / OS
+.git/
+.gitignore
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Docs / scripts we don't need at runtime
+DEVLOG.md

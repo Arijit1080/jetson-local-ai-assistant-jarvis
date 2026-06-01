@@ -1,0 +1,30 @@
+services:
+  jarvis:
+    build: .
+    image: jetson-jarvis:latest
+    container_name: jarvis
+
+    # CUDA / cuDNN access from the container.
+    runtime: nvidia
+
+    # Host network so the container can reach the host's Ollama at
+    # 127.0.0.1:11434, and so the web UI is reachable at :8080 with no NAT.
+    network_mode: host
+
+    # Microphone + speaker pass-through.
+    devices:
+      - /dev/snd:/dev/snd
+    group_add:
+      - "29"        # `audio` group on JetPack 6.2
+
+    environment:
+      OLLAMA_URL: "http://127.0.0.1:11434"
+      PYTHONUNBUFFERED: "1"
+
+    volumes:
+      # Persist downloaded Whisper / Piper / oWW models across restarts.
+      - ./models:/app/models
+      # Persist runtime settings (system prompt etc.)
+      - ./data:/app/data
+
+    restart: unless-stopped

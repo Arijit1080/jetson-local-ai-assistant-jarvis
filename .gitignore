@@ -1,0 +1,44 @@
+# venvs
+venv/
+training_venv/
+.venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# Models (downloaded on first run / install)
+models/
+~/.insightface/
+~/.cache/silero_vad.onnx
+*.onnx
+*.tflite
+*.pt
+
+# Generated artifacts
+training/
+snapshots/
+embeddings.npz
+bench*.csv
+*.wav
+*.mp3
+
+# Runtime state
+settings.json
+attendance.db
+*.log
+/tmp/last_capture.wav
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*~
+
+# Local secrets / personal
+.env
+.env.*
