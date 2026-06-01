@@ -26,5 +26,8 @@ services:
       - ./models:/app/models
       # Persist runtime settings (system prompt etc.)
       - ./data:/app/data
+      # Telemetry: the L4T base image doesn't ship tegrastats; bind-mount
+      # from the host. /sys is already accessible to the container.
+      - /usr/bin/tegrastats:/usr/bin/tegrastats:ro
 
     restart: unless-stopped
