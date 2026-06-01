@@ -1,7 +1,7 @@
 from pathlib import Path
 
 # --- paths on the Jetson ---
-PROJECT_ROOT = Path.home() / "local-assistant"
+PROJECT_ROOT = Path(__file__).resolve().parent
 MODELS_DIR = PROJECT_ROOT / "models"
 PIPER_VOICE = MODELS_DIR / "piper" / "en_GB-alan-medium.onnx"   # JARVIS-style British male
 WHISPER_DIR = MODELS_DIR / "whisper"
