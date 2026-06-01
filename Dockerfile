@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         python3 python3-pip python3-venv python3-dev \
         portaudio19-dev libsndfile1 ffmpeg \
         cmake ninja-build build-essential \
-        curl ca-certificates \
+        git curl ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 # ─── Python env ─────────────────────────────────────────────────
@@ -22,13 +22,28 @@ RUN pip install --upgrade pip wheel
 # Pin numpy<2 first — tflite-runtime 2.14 (used by openWakeWord) needs it.
 RUN pip install 'numpy<2'
 
-# Jetson-specific wheels from NVIDIA Jetson AI Lab.
-# onnxruntime-gpu  → TensorRT + CUDA EPs
-# ctranslate2      → CUDA-enabled build for faster-whisper
+# onnxruntime-gpu (TensorRT + CUDA EPs) from NVIDIA Jetson AI Lab
 RUN pip install \
         --extra-index-url https://pypi.jetson-ai-lab.io/jp6/cu126 \
-        onnxruntime-gpu \
-        ctranslate2
+        onnxruntime-gpu
+
+# Build CTranslate2 from source with CUDA + cuDNN — the jetson-ai-lab.io
+# wheel is CPU-only at the time of writing, and PyPI's aarch64 wheel is
+# CPU-only too. Building yourself ensures faster-whisper can use the GPU.
+# sm_87 = Orin Ampere (Orin Nano / Orin NX).
+RUN cd /tmp && \
+    git clone --recursive https://github.com/OpenNMT/CTranslate2.git && \
+    cd CTranslate2 && mkdir build && cd build && \
+    cmake .. -G Ninja \
+      -DWITH_CUDA=ON -DWITH_CUDNN=ON \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DCMAKE_CUDA_ARCHITECTURES=87 \
+      -DWITH_MKL=OFF -DOPENMP_RUNTIME=COMP && \
+    ninja -j3 && ninja install && ldconfig && \
+    cd ../python && \
+    pip install -r install_requirements.txt && \
+    pip install . && \
+    cd / && rm -rf /tmp/CTranslate2
 
 # Rest of the Python deps (faster-whisper has to come with --no-deps so it
 # doesn't try to re-pull the CPU ctranslate2 wheel and overwrite our GPU one)
