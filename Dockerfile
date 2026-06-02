@@ -52,6 +52,11 @@ RUN pip install --no-deps faster-whisper==1.2.1 \
  && pip install -r /tmp/requirements.txt \
  && pip install huggingface-hub tokenizers av tqdm cffi
 
+# Pre-download openWakeWord model files (~6 MB). They are NOT bundled with
+# the pip package; openWakeWord normally downloads them on first init.
+# Doing it here means the hotword loop works the moment the container starts.
+RUN python -c "import openwakeword.utils as u; u.download_models()"
+
 # ─── App ────────────────────────────────────────────────────────
 WORKDIR /app
 COPY . /app
