@@ -4,7 +4,6 @@ A fully offline voice assistant — wake word, speech-to-text, LLM, text-to-spee
 
 The web UI is a futuristic JARVIS-style HUD with real-time amplitude-driven animations, live system telemetry from `tegrastats`, and a customisable system prompt.
 
-> **YouTube companion video:** _link_when_published_
 
 ![Live UI](docs/ui-screenshot.png)
 
