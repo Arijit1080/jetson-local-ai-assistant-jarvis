@@ -52,6 +52,11 @@ RUN pip install --no-deps faster-whisper==1.2.1 \
  && pip install -r /tmp/requirements.txt \
  && pip install huggingface-hub tokenizers av tqdm cffi
 
+# openWakeWord pip wheel does NOT bundle the .tflite model files; they live in
+# its GitHub releases. Download once at build time so the runtime container
+# doesn'"'"'t need outbound network — and so the wake word actually works.
+RUN python3 -c "import openwakeword.utils as u; u.download_models()" 
+
 # Pre-download openWakeWord model files (~6 MB). They are NOT bundled with
 # the pip package; openWakeWord normally downloads them on first init.
 # Doing it here means the hotword loop works the moment the container starts.
